@@ -17,20 +17,19 @@ class NotificationController {
         null, // default icon
         [
           NotificationChannel(
-            channelKey: 'alarm_channel',
+            channelKey: 'fajr',
             channelName: 'Alarm Notifications',
             channelDescription: 'Notification channel for alarms',
             defaultColor: const Color.fromARGB(255, 157, 80, 221),
             ledColor: Colors.white,
-            importance: NotificationImportance.High,
+            importance: NotificationImportance.Max,
             playSound: true,
             soundSource: 'resource://raw/fazar',
             defaultRingtoneType: DefaultRingtoneType.Alarm,
-            enableVibration: true,
             onlyAlertOnce: false,
           ),
           NotificationChannel(
-            channelKey: 'alarm_channel2',
+            channelKey: 'azan',
             channelName: 'Alarm Notifications',
             channelDescription: 'Notification channel for alarms',
             defaultColor: const Color.fromARGB(255, 157, 80, 221),
@@ -39,8 +38,26 @@ class NotificationController {
             playSound: true,
             soundSource: 'resource://raw/azan',
             defaultRingtoneType: DefaultRingtoneType.Alarm,
-            enableVibration: true,
             onlyAlertOnce: false,
+          ),
+          NotificationChannel(
+            channelKey: 'no_sound',
+            channelName: 'Vibrate notifications',
+            channelDescription: 'Notification channel with vibration',
+            defaultColor: Color(0xFF9D50DD),
+            ledColor: Colors.white,
+            playSound: false,
+            enableVibration: true,
+          ),
+          NotificationChannel(
+            channelKey: 'default',
+            channelName: 'Vibrate notifications',
+            channelDescription: 'Notification channel with vibration',
+            defaultColor: Color(0xFF9D50DD),
+            ledColor: Colors.white,
+            playSound: true,
+            defaultRingtoneType: DefaultRingtoneType.Alarm,
+            enableVibration: true,
           ),
         ]);
     bool isPermit = await AwesomeNotifications().isNotificationAllowed();
@@ -53,11 +70,11 @@ class NotificationController {
     DateTime now = DateTime.now();
     DateTime alarmTime = DateTime(
         now.year, now.month, now.day, alarm.time.hour, alarm.time.minute);
-    String? soundSource =
-        (alarm.id == 0) ? 'resource://raw/azan' : 'resource://raw/fazar';
 
-    String channel1 = "alarm_channel";
-    String channel2 = "alarm_channel2";
+    String channel1 = "fajr";
+    String channel2 = "azan";
+    String channel3 = "no_sound";
+    String channel4 = "default";
 
     // If the alarm time has already passed today, set it for tomorrow
     if (alarmTime.isBefore(now)) {
@@ -65,16 +82,21 @@ class NotificationController {
     }
 
     print('Scheduling alarm for: $alarmTime');
-    print(soundSource);
+
     AwesomeNotifications().createNotification(
         content: NotificationContent(
           id: alarm.id,
-          channelKey: (alarm.id == 0 || alarm.id == 5) ? channel1 : channel2,
+          channelKey: alarm.sound
+              ? (alarm.defaultSound
+                  ? channel4
+                  : (alarm.id == 0 || alarm.id == 5)
+                      ? channel1
+                      : channel2)
+              : channel3,
           title: alarm.title,
           body: alarm.body,
           notificationLayout: NotificationLayout.BigText,
           wakeUpScreen: true,
-          customSound: soundSource,
           category: NotificationCategory.Alarm,
           duration: Duration(minutes: (alarm.id == 0 || alarm.id == 5) ? 2 : 1),
           timeoutAfter:

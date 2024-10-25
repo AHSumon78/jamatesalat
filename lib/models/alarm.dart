@@ -9,6 +9,8 @@ class Alarm {
   TimeOfDay time;
   bool status;
   bool init;
+  bool sound;
+  bool defaultSound;
 
   get getId => id;
   get getTitle => title;
@@ -23,6 +25,8 @@ class Alarm {
     required this.time,
     required this.status,
     required this.init,
+    required this.sound,
+    required this.defaultSound,
   });
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -31,17 +35,20 @@ class Alarm {
         'hour': time.hour,
         'minute': time.minute,
         'status': status,
-        'init': init
+        'init': init,
+        'sound': sound,
+        'defaultSound': defaultSound
       };
 
   factory Alarm.fromJson(Map<String, dynamic> json) => Alarm(
-        id: json['id'],
-        title: json['title'],
-        body: json['body'],
-        time: TimeOfDay(hour: json['hour'], minute: json['minute']),
-        status: json['status'],
-        init: json['init'],
-      );
+      id: json['id'],
+      title: json['title'],
+      body: json['body'],
+      time: TimeOfDay(hour: json['hour'], minute: json['minute']),
+      status: json['status'],
+      init: json['init'],
+      sound: json['sound'],
+      defaultSound: json['defaultSound']);
   @override
   String toString() {
     // ignore: prefer_interpolation_to_compose_strings

@@ -9,16 +9,18 @@ android {
     namespace = "com.example.jamatesalat"
     compileSdk = 34
     ndkVersion = flutter.ndkVersion
-
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility =JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 
     kotlinOptions {
+
         jvmTarget = JavaVersion.VERSION_1_8
     }
+   
 
+  
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.example.jamatesalat"
@@ -29,14 +31,40 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
-
-    buildTypes {
+    signingConfigs {
+        release {
+            keyAlias 'my-key-alias'
+            keyPassword '88991010'
+            storeFile file('E:/flutter/my-release-key.jks')
+            storePassword '88991010'
+        }
+    }
+      buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.debug
         }
     }
+    
+   /* buildTypes {
+    release {
+        signingConfig signingConfigs.release
+        minifyEnabled true
+        proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+    }
+}
+ splits {
+        abi {
+            enable true
+            reset()
+            include 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+            universalApk false
+        }
+    }
+    */
+
+
 }
 
 flutter {

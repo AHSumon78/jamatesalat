@@ -1,10 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:jamatesalat/models/Details.dart';
 import 'package:jamatesalat/models/Location.dart';
 import 'package:jamatesalat/models/alarm.dart';
 import 'package:jamatesalat/screens/locations.dart';
+import 'package:jamatesalat/screens/settings.dart';
 import 'package:jamatesalat/utils/notifiaction_controller.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+import '../models/global_function.dart';
 
 Future<void> requestPreciseAlarmPermission() async {
   var status = await Permission.scheduleExactAlarm.status;
@@ -43,62 +47,12 @@ class AlarmPage extends StatefulWidget {
 }
 
 class _AlarmPageState extends State<AlarmPage> {
-  bool location = false;
-  List<String> mosque = [];
-  List<Alarm> alarms = [];
-  List<Details> details = [
-    Details(
-        title: "Fazar",
-        body: "Go for salah or you will miss jamat",
-        time: const TimeOfDay(hour: 4, minute: 30)),
-    Details(
-        title: "Dhurh",
-        body: "Go for salah or you will miss jamat",
-        time: const TimeOfDay(hour: 13, minute: 30)),
-    Details(
-        title: "Ashar",
-        body: "Go for salah or you will miss jamat",
-        time: const TimeOfDay(hour: 16, minute: 00)),
-    Details(
-        title: "Magrib",
-        body: "Go for salah or you will miss jamat",
-        time: const TimeOfDay(hour: 18, minute: 00)),
-    Details(
-        title: "Esha",
-        body: "Go for salah or you will miss jamat",
-        time: const TimeOfDay(hour: 20, minute: 00))
-  ];
-
-  bool isInitialized = false;
-
   @override
   void initState() {
     super.initState();
     _loadAlarms();
     loadLocation();
     requestPreciseAlarmPermission();
-  }
-
-  void _initializeDefaultAlarms() {
-    if (!isInitialized) {
-      int start;
-      for (int i = 0; i < 10; i++) {
-        start = i;
-        if (i > 4) {
-          start -= 5;
-        }
-        alarms.add(Alarm(
-          id: i,
-          title: details[start].title,
-          body: details[start].body,
-          time: details[start].time,
-          status: false,
-          init: false,
-        ));
-      }
-      _saveAlarms();
-      isInitialized = true;
-    }
   }
 
   Future<void> _loadAlarms() async {
@@ -113,6 +67,30 @@ class _AlarmPageState extends State<AlarmPage> {
         location = alarms[0].init;
       }
     });
+  }
+
+  //initalization of defult alarm if all is not stored
+  void _initializeDefaultAlarms() {
+    if (!isInitialized) {
+      int start;
+      for (int i = 0; i < 10; i++) {
+        start = i;
+        if (i > 4) {
+          start -= 5;
+        }
+        alarms.add(Alarm(
+            id: i,
+            title: details[start].title,
+            body: details[start].body,
+            time: details[start].time,
+            status: false,
+            init: false,
+            sound: true,
+            defaultSound: false));
+      }
+      _saveAlarms();
+      isInitialized = true;
+    }
   }
 
   Future<void> _saveAlarms() async {
@@ -169,34 +147,6 @@ class _AlarmPageState extends State<AlarmPage> {
     }
   }
 
-  void toggle() async {
-    if (location) {
-      for (int i = 0; i < 5; i++) {
-        if (await NotificationController().isNotificationScheduled(i)) {
-          NotificationController().cancelNotification(i);
-        }
-        if (alarms[i + 5].status) {
-          print(i + 5);
-          print(alarms[i + 5].title);
-          print(alarms[i + 5].time);
-          NotificationController().scheduleAlarm(alarms[i + 5]);
-        }
-      }
-    } else {
-      for (int i = 5; i < 10; i++) {
-        if (await NotificationController().isNotificationScheduled(i)) {
-          NotificationController().cancelNotification(i);
-        }
-        if (alarms[i - 5].status) {
-          print(i - 5);
-          print(alarms[i - 5].title);
-          print(alarms[i - 5].time);
-          NotificationController().scheduleAlarm(alarms[i - 5]);
-        }
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -204,6 +154,7 @@ class _AlarmPageState extends State<AlarmPage> {
         title: const Text(
           'NMJammat',
           style: TextStyle(
+            fontSize: 20,
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
@@ -225,9 +176,14 @@ class _AlarmPageState extends State<AlarmPage> {
         actions: [
           Row(
             children: [
-              const Icon(
-                Icons.pin_drop,
-                color: Color.fromARGB(255, 56, 4, 243),
+              GestureDetector(
+                child: const Icon(
+                  Icons.pin_drop,
+                  color: Color.fromARGB(255, 56, 4, 243),
+                ),
+                onTap: () {
+                  navLocation();
+                },
               ),
               Text(
                 mosque.isEmpty ? "Mosque" : mosque[location ? 1 : 0],
@@ -259,6 +215,83 @@ class _AlarmPageState extends State<AlarmPage> {
           ),
         ],
       ),
+      drawer: SizedBox(
+        height: 400,
+        child: Drawer(
+          backgroundColor: bgColor,
+          width: 200,
+          // Adjust the width of the drawer
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              topRight: Radius.circular(30),
+              bottomRight: Radius.circular(30),
+            ),
+            side: BorderSide(color: Colors.green),
+          ),
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.home, color: iconColor),
+                title: Text('Home',
+                    style: TextStyle(fontSize: 18, color: textColor)),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.settings, color: iconColor),
+                title: Text('Settings',
+                    style: TextStyle(fontSize: 18, color: textColor)),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Settings(),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.pin_drop, color: iconColor),
+                title: Text('Set Locations',
+                    style: TextStyle(fontSize: 18, color: textColor)),
+                onTap: () {
+                  navLocation();
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.info, color: iconColor),
+                title: Text('About',
+                    style: TextStyle(fontSize: 18, color: textColor)),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              ),
+              const Divider(), // Adding a divider for better separation
+              ListTile(
+                leading: Icon(Icons.contact_mail, color: iconColor),
+                title: Text('Contact Us',
+                    style: TextStyle(fontSize: 18, color: textColor)),
+                onTap: () {
+                  // Define your navigation logic here
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.help, color: iconColor),
+                title: Text('Help',
+                    style: TextStyle(fontSize: 18, color: textColor)),
+                onTap: () {
+                  // Define your navigation logic here
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+          // Adjust the width of the drawer
+        ),
+      ),
       body: Stack(
         children: [
           Positioned.fill(
@@ -284,53 +317,17 @@ class _AlarmPageState extends State<AlarmPage> {
                       child: Text(
                         'Never Miss Jammat',
                         style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 15,
                             color: Color.fromARGB(255, 4, 237, 12)),
                       ),
                     ),
-                    Row(
-                      children: [
-                        const Text(
-                          "Set Locations",
-                          style:
-                              TextStyle(color: Color.fromARGB(255, 4, 237, 12)),
-                        ),
-                        SizedBox(
-                          child: GestureDetector(
-                            onTap: () async {
-                              Location location = Location(
-                                  first: mosque.isEmpty ? "" : mosque[0],
-                                  second: mosque.isEmpty ? "" : mosque[1]);
-                              final updateLocations = await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => Locations(location),
-                                ),
-                              );
-                              if (updateLocations != null) {
-                                setState(() {
-                                  if (mosque.isEmpty) {
-                                    mosque.add(updateLocations.first);
-                                    mosque.add(updateLocations.second);
-                                  } else {
-                                    mosque[0] = updateLocations.first;
-                                    mosque[1] = updateLocations.second;
-                                  }
-                                  saveLocation();
-                                });
-                              }
-                            },
-                            child: const Icon(
-                              Icons.pin_drop,
-                              color: Color.fromARGB(255, 173, 12, 4),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 20,
-                        ),
-                      ],
-                    ),
+                    ElevatedButton(
+                      onPressed: () {},
+                      child: Text(
+                        "Other alarm",
+                        style: TextStyle(color: bgColor),
+                      ),
+                    )
                   ],
                 ),
               ),
@@ -364,7 +361,7 @@ class _AlarmPageState extends State<AlarmPage> {
 
   ListView _location(int start) {
     return ListView.builder(
-      padding: EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(8.0),
       itemCount: (alarms.length - 5) < 0 ? 0 : (alarms.length - 5),
       itemBuilder: (context, index) {
         return Card(
@@ -372,19 +369,21 @@ class _AlarmPageState extends State<AlarmPage> {
               .withOpacity(0.2), // Transparent background// No shadow
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: const Color.fromARGB(255, 14, 245, 21)),
+            side: const BorderSide(color: Color.fromARGB(255, 14, 245, 21)),
           ),
           elevation: 4,
-          margin: EdgeInsets.symmetric(vertical: 8),
+          margin: const EdgeInsets.symmetric(vertical: 8),
           child: ListTile(
             title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Text(
-                  alarms[index + start].title,
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: const Color.fromARGB(255, 233, 48, 10)),
+                SizedBox(
+                  width: 65,
+                  child: Text(
+                    alarms[index + start].title,
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: alarmColor),
+                  ),
                 ),
                 const SizedBox(
                   width: 50,
@@ -393,7 +392,8 @@ class _AlarmPageState extends State<AlarmPage> {
                   onTap: () => pickTime(context, index + start),
                   child: Text(
                     alarms[index + start].time.format(context),
-                    style: TextStyle(color: Colors.blueAccent),
+                    style: const TextStyle(
+                        color: Color.fromARGB(255, 242, 249, 40)),
                   ),
                 ),
               ],
@@ -434,20 +434,27 @@ class _AlarmPageState extends State<AlarmPage> {
     );
   }
 
-  bool ifSet(int index) {
-    return index < alarms.length;
-  }
-
-  void enableNotification(int index) {
-    NotificationController().scheduleAlarm(
-      Alarm(
-        id: index,
-        title: alarms[index].title,
-        body: alarms[index].body,
-        time: alarms[index].time,
-        status: alarms[index].status,
-        init: true,
+  void navLocation() async {
+    Location location = Location(
+        first: mosque.isEmpty ? "" : mosque[0],
+        second: mosque.isEmpty ? "" : mosque[1]);
+    final updateLocations = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Locations(location),
       ),
     );
+    if (updateLocations != null) {
+      setState(() {
+        if (mosque.isEmpty) {
+          mosque.add(updateLocations.first);
+          mosque.add(updateLocations.second);
+        } else {
+          mosque[0] = updateLocations.first;
+          mosque[1] = updateLocations.second;
+        }
+        saveLocation();
+      });
+    }
   }
 }

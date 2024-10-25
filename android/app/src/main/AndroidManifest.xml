@@ -4,12 +4,31 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY"/>
 
     <application
         android:label="NMJamat"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:enableOnBackInvokedCallback="true">
+        
+        <service
+            android:name="me.carda.awesome_notifications.notifications.receivers.ForegroundService"/>
+        <receiver
+            android:name="me.carda.awesome_notifications.notifications.receivers.ActionReceiver"/>
+        <receiver
+            android:name="me.carda.awesome_notifications.notifications.receivers.DismissedReceiver"/>
+        <receiver
+            android:name="me.carda.awesome_notifications.notifications.receivers.DefaultReceiver"/>
+        <receiver
+            android:name="me.carda.awesome_notifications.notifications.receivers.RefreshSchedulesReceiver"/>
+        <receiver
+            android:name="me.carda.awesome_notifications.notifications.receivers.DefaultActionReceiver"/>
+        <service
+            android:name="me.carda.awesome_notifications.notifications.NotificationService"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+        </service>
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -39,6 +58,7 @@
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
+ 
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
          https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jamatesalat/models/Location.dart';
+import 'package:jamatesalat/models/global_function.dart';
 
 // ignore: must_be_immutable
 class Locations extends StatefulWidget {
@@ -68,66 +69,66 @@ class LocationsState extends State<Locations> {
             ),
           ),
         ),
-        body: Stack(children: [
-          Positioned.fill(
-            child: Image.asset(
-              'assets/images/background.png',
-              fit: BoxFit.cover,
-            ),
-          ),
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(100, 300, 100, 00),
-              child: Column(
-                children: <Widget>[
-                  TextField(
-                    controller: first,
-                    onChanged: (value) {
-                      debugPrint('First: $value');
-                    },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20)),
-                      label: const Text(
-                        "First Location",
-                        style:
-                            TextStyle(color: Color.fromARGB(255, 4, 236, 12)),
-                      ),
-                      hintText: 'First Mosque',
-                    ),
-                    style: const TextStyle(
-                      color: Colors.white, // Set your desired text color here
-                      fontSize: 18.0, // Optionally, set the font size
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  TextField(
-                    controller: second,
-                    onChanged: (value) {
-                      debugPrint('second: $value');
-                    },
-                    decoration: InputDecoration(
-                      label: const Text(
-                        "Second Location",
-                        style:
-                            TextStyle(color: Color.fromARGB(255, 4, 236, 12)),
-                      ),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20)),
-                      hintText: 'Second Mosque',
-                    ),
-                    style: const TextStyle(
-                      color: Colors.white, // Set your desired text color here
-                      fontSize: 18.0, // Optionally, set the font size
-                    ),
-                  ),
-                ],
+        body: Container(
+          width: double.infinity,
+          color: bgColor,
+          child: Column(
+            children: <Widget>[
+              const SizedBox(
+                height: 100,
               ),
-            ),
+              SizedBox(
+                width: 200,
+                child: TextField(
+                  maxLength: 20,
+                  controller: first,
+                  onChanged: (value) {
+                    debugPrint('First: $value');
+                  },
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20)),
+                    label: const Text(
+                      "First Location",
+                      style: TextStyle(color: Color.fromARGB(255, 4, 236, 12)),
+                    ),
+                    hintText: 'First Mosque',
+                  ),
+                  style: TextStyle(
+                    color: textColor, // Set your desired text color here
+                    fontSize: 18.0, // Optionally, set the font size
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              SizedBox(
+                width: 200,
+                child: TextField(
+                  maxLength: 15,
+                  controller: second,
+                  onChanged: (value) {
+                    debugPrint('second: $value');
+                  },
+                  decoration: InputDecoration(
+                    label: const Text(
+                      "Second Location",
+                      style: TextStyle(color: Color.fromARGB(255, 4, 236, 12)),
+                    ),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20)),
+                    hintText: 'Second Mosque',
+                  ),
+                  style: TextStyle(
+                    color: textColor, // Set your desired text color here
+                    fontSize: 18.0, // Optionally, set the font size
+                  ),
+                ),
+              ),
+            ],
           ),
-        ]),
+        ),
       ),
     );
   }
