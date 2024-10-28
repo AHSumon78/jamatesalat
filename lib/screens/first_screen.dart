@@ -1,13 +1,12 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:jamatesalat/models/Location.dart';
 import 'package:jamatesalat/models/alarm.dart';
 import 'package:jamatesalat/screens/locations.dart';
+import 'package:jamatesalat/screens/others_alarm.dart';
 import 'package:jamatesalat/screens/settings.dart';
 import 'package:jamatesalat/utils/notifiaction_controller.dart';
 import 'package:permission_handler/permission_handler.dart';
-
 import '../models/global_function.dart';
 
 Future<void> requestPreciseAlarmPermission() async {
@@ -22,6 +21,17 @@ Future<void> requestPreciseAlarmPermission() async {
     } else {
       print("Precise alarm permission denied");
       // Optionally, show a dialog here to inform the user
+    }
+  }
+}
+
+void _checkPermission() async {
+  var status = await Permission.location.status;
+  if (status.isDenied) {
+    if (await Permission.location.request().isGranted) {
+      // Permission granted
+    } else {
+      // Permission denied
     }
   }
 }
@@ -53,6 +63,7 @@ class _AlarmPageState extends State<AlarmPage> {
     _loadAlarms();
     loadLocation();
     requestPreciseAlarmPermission();
+    _checkPermission();
   }
 
   Future<void> _loadAlarms() async {
@@ -98,11 +109,12 @@ class _AlarmPageState extends State<AlarmPage> {
   }
 
   void saveLocation() async {
-    await LocationStorage.saveLocation(mosque[0], mosque[1]);
+    await LocationStorage.saveLocation(
+        mosque[0], mosque[1], timeA, timeB, flat, flong, slat, slong);
   }
 
   void loadLocation() async {
-    Map<String, String> location = await LocationStorage.loadLocation();
+    Map<String, dynamic> location = await LocationStorage.loadLocation();
     if (mosque.isNotEmpty) {
       setState(() {
         mosque[0] = location['first']!;
@@ -114,6 +126,14 @@ class _AlarmPageState extends State<AlarmPage> {
         mosque.add(location['second']!);
       });
     }
+    setState(() {
+      timeA = location['timeA'];
+      timeB = location['timeB'];
+      flat = location['flat'];
+      flong = location['flong'];
+      slat = location['slat'];
+      slong = location['slong'];
+    });
     print('First: ${location['first']}, Second: ${location['second']}');
   }
 
@@ -151,35 +171,28 @@ class _AlarmPageState extends State<AlarmPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'NMJammat',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: textColor,
           ),
         ),
         elevation: 0,
         backgroundColor: Colors.transparent,
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color.fromARGB(255, 16, 241, 38),
-                Color.fromARGB(255, 20, 31, 24)
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+          decoration: BoxDecoration(
+            color: bgColor,
           ),
         ),
         actions: [
           Row(
             children: [
               GestureDetector(
-                child: const Icon(
+                child: Icon(
                   Icons.pin_drop,
-                  color: Color.fromARGB(255, 56, 4, 243),
+                  color: iconColor,
                 ),
                 onTap: () {
                   navLocation();
@@ -187,14 +200,13 @@ class _AlarmPageState extends State<AlarmPage> {
               ),
               Text(
                 mosque.isEmpty ? "Mosque" : mosque[location ? 1 : 0],
-                style: const TextStyle(
-                    color: const Color.fromARGB(255, 254, 255, 255)),
+                style: TextStyle(color: textColor),
               ),
               const SizedBox(
                 width: 10,
               ),
               Transform.scale(
-                scale: .9,
+                scale: .7,
                 child: Switch(
                   value: location,
                   onChanged: (value) {
@@ -205,9 +217,9 @@ class _AlarmPageState extends State<AlarmPage> {
                       _saveAlarms();
                     });
                   },
-                  activeColor: const Color.fromARGB(255, 16, 4, 180),
-                  activeTrackColor: const Color.fromARGB(255, 221, 209, 224),
-                  inactiveThumbColor: const Color.fromARGB(255, 72, 239, 7),
+                  activeColor: const Color.fromARGB(255, 227, 227, 231),
+                  activeTrackColor: const Color.fromARGB(255, 109, 125, 247),
+                  inactiveThumbColor: const Color.fromARGB(255, 168, 172, 166),
                   inactiveTrackColor: const Color.fromARGB(255, 216, 211, 211),
                 ),
               ),
@@ -219,14 +231,14 @@ class _AlarmPageState extends State<AlarmPage> {
         height: 400,
         child: Drawer(
           backgroundColor: bgColor,
-          width: 200,
+          width: 240,
           // Adjust the width of the drawer
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
+          shape: RoundedRectangleBorder(
+            borderRadius: const BorderRadius.only(
               topRight: Radius.circular(30),
               bottomRight: Radius.circular(30),
             ),
-            side: BorderSide(color: Colors.green),
+            side: BorderSide(color: textColor),
           ),
           child: ListView(
             padding: EdgeInsets.zero,
@@ -292,61 +304,73 @@ class _AlarmPageState extends State<AlarmPage> {
           // Adjust the width of the drawer
         ),
       ),
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: Image.asset(
-              'assets/images/background.png',
-              fit: BoxFit.cover,
-            ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color.fromARGB(255, 132, 136, 124), Color(0xFFe0f7fa)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
-          Column(
-            children: [
-              Card(
-                color: Colors.white
-                    .withOpacity(0.0), // Transparent background// No shadow
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 10,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const SizedBox(
-                      height: 30,
-                      child: Text(
-                        'Never Miss Jammat',
-                        style: TextStyle(
-                            fontSize: 15,
-                            color: Color.fromARGB(255, 4, 237, 12)),
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {},
-                      child: Text(
-                        "Other alarm",
-                        style: TextStyle(color: bgColor),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 225,
-                child: Card(
-                  color: Colors.white
-                      .withOpacity(0.0), // Transparent background// No shadow
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                SizedBox(
+                  child: Text(
+                    'Remainder\n Before Jammat',
+                    style: TextStyle(
+                        fontSize: 20,
+                        color: textColor,
+                        fontStyle: FontStyle.italic),
+                    textAlign: TextAlign.center,
                   ),
                 ),
+                const SizedBox(),
+                Tooltip(
+                  message: "Offset time for\n walking to mosque",
+                  enableTapToDismiss: true,
+                  preferBelow: false,
+                  child: Text(location ? "$timeB m" : "$timeA m",
+                      style: TextStyle(color: iconColor, fontSize: 28)),
+                ),
+              ],
+            ),
+            Expanded(
+              child: locationOptions(),
+            ),
+            SizedBox(
+              height: 125,
+              child: Text(
+                "Reminder for Jammat\nThat you shall not miss the jammat accidentaly",
+                textAlign: TextAlign.center,
+                style: TextStyle(color: textColor),
               ),
-              Expanded(
-                child: locationOptions(),
+            ),
+            ElevatedButton(
+              style: const ButtonStyle(
+                backgroundColor:
+                    WidgetStatePropertyAll(Color.fromARGB(255, 174, 178, 150)),
+                elevation: WidgetStatePropertyAll(20),
               ),
-            ],
-          ),
-        ],
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => OthersAlarm(),
+                    ));
+              },
+              child: Text(
+                "Others alarm",
+                style: TextStyle(color: textColor),
+              ),
+            ),
+            const SizedBox(
+              height: 30,
+            )
+          ],
+        ),
       ),
     );
   }
@@ -362,14 +386,14 @@ class _AlarmPageState extends State<AlarmPage> {
   ListView _location(int start) {
     return ListView.builder(
       padding: const EdgeInsets.all(8.0),
-      itemCount: (alarms.length - 5) < 0 ? 0 : (alarms.length - 5),
+      itemCount: (alarms.length - 5) < 0 ? 0 : 5,
       itemBuilder: (context, index) {
         return Card(
-          color: const Color.fromARGB(255, 179, 149, 244)
-              .withOpacity(0.2), // Transparent background// No shadow
+          color: bgColor,
+          // Transparent background// No shadow
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: const BorderSide(color: Color.fromARGB(255, 14, 245, 21)),
+            side: BorderSide(color: textColor),
           ),
           elevation: 4,
           margin: const EdgeInsets.symmetric(vertical: 8),
@@ -378,11 +402,11 @@ class _AlarmPageState extends State<AlarmPage> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 SizedBox(
-                  width: 65,
+                  width: 85,
                   child: Text(
                     alarms[index + start].title,
                     style: TextStyle(
-                        fontWeight: FontWeight.bold, color: alarmColor),
+                        fontWeight: FontWeight.bold, color: textColor),
                   ),
                 ),
                 const SizedBox(
@@ -392,8 +416,7 @@ class _AlarmPageState extends State<AlarmPage> {
                   onTap: () => pickTime(context, index + start),
                   child: Text(
                     alarms[index + start].time.format(context),
-                    style: const TextStyle(
-                        color: Color.fromARGB(255, 242, 249, 40)),
+                    style: TextStyle(color: textColor),
                   ),
                 ),
               ],
@@ -402,7 +425,8 @@ class _AlarmPageState extends State<AlarmPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Transform.scale(
-                    scale: .9,
+                    scaleX: 0.7,
+                    scaleY: 0.6,
                     child: Switch(
                       value: alarms[index + start].status,
                       onChanged: (value) {
@@ -418,13 +442,13 @@ class _AlarmPageState extends State<AlarmPage> {
                         });
                       },
                       activeColor: const Color.fromARGB(
-                          255, 7, 89, 232), // Thumb color when active
+                          255, 226, 227, 231), // Thumb color when active
                       activeTrackColor: const Color.fromARGB(
-                          255, 184, 212, 225), // Track color when active
+                          255, 109, 125, 247), // Track color when active
                       inactiveThumbColor: const Color.fromARGB(
-                          255, 23, 235, 90), // Thumb color when inactive
+                          255, 211, 217, 213), // Thumb color when inactive
                       inactiveTrackColor:
-                          const Color.fromARGB(255, 216, 229, 215),
+                          const Color.fromARGB(255, 168, 171, 167),
                     ))
               ],
             ),
@@ -437,7 +461,13 @@ class _AlarmPageState extends State<AlarmPage> {
   void navLocation() async {
     Location location = Location(
         first: mosque.isEmpty ? "" : mosque[0],
-        second: mosque.isEmpty ? "" : mosque[1]);
+        second: mosque.isEmpty ? "" : mosque[1],
+        timeA: timeA,
+        timeB: timeB,
+        flat: flat,
+        flong: flong,
+        slat: slat,
+        slong: slong);
     final updateLocations = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -453,8 +483,23 @@ class _AlarmPageState extends State<AlarmPage> {
           mosque[0] = updateLocations.first;
           mosque[1] = updateLocations.second;
         }
+        timeA = updateLocations.timeA;
+        timeB = updateLocations.timeB;
+        flat = updateLocations.flat;
+        flong = updateLocations.flong;
+        slat = updateLocations.slat;
+        slong = updateLocations.slong;
+        print(",,,,,,");
+        print(updateLocations.timeA);
         saveLocation();
+        enableWhichEanabled();
       });
     }
   }
 }
+/*            NumberPicker(
+              value: _currentValue,
+              minValue: 1,
+              maxValue: 29,
+              onChanged: (value) => setState(() => _currentValue = value),
+            ),*/

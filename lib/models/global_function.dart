@@ -7,13 +7,20 @@ import 'alarm.dart';
 bool location = false;
 
 bool isInitialized = false;
-Color iconColor = Colors.blue;
-Color bgColor = Colors.black;
-Color textColor = Colors.white;
+Color iconColor = const Color.fromARGB(255, 15, 16, 10);
+Color bgColor = const Color.fromARGB(255, 174, 178, 150); // Fully opaque
+Color textColor = const Color.fromARGB(255, 4, 0, 0);
 Color alarmColor = const Color.fromARGB(255, 221, 3, 17);
-
+Color greenColor = const Color.fromARGB(255, 5, 229, 13);
+Color skyColor = const Color.fromARGB(255, 107, 203, 227);
 List<Alarm> alarms = [];
-List<String> mosque = [];
+List<String> mosque = ["", ""];
+int timeA = 0;
+int timeB = 0;
+double flat = 23;
+double flong = 90;
+double slat = 22;
+double slong = 98;
 List<Details> details = [
   Details(
       title: "Fajr",
@@ -39,7 +46,7 @@ List<Details> details = [
 void toggle() async {
   if (location) {
     for (int i = 0; i < 5; i++) {
-      if (await NotificationController().isNotificationScheduled(i)) {
+      if (alarms[i].status) {
         NotificationController().cancelNotification(i);
       }
       if (alarms[i + 5].status) {
@@ -51,7 +58,7 @@ void toggle() async {
     }
   } else {
     for (int i = 5; i < 10; i++) {
-      if (await NotificationController().isNotificationScheduled(i)) {
+      if (alarms[i].status) {
         NotificationController().cancelNotification(i);
       }
       if (alarms[i - 5].status) {
@@ -67,14 +74,45 @@ void toggle() async {
 void enableNotification(int index) {
   //  bool screenOn = _screenStateEvent == ScreenStateEvent.SCREEN_ON;
   NotificationController().scheduleAlarm(Alarm(
-          id: index,
-          title: alarms[index].title,
-          body: alarms[index].body,
-          time: alarms[index].time,
-          status: alarms[index].status,
-          init: true,
-          sound: true,
-          defaultSound: false)
-      // screenOn,
-      );
+      id: index,
+      title: alarms[index].title,
+      body: alarms[index].body,
+      time: subtractMinutesFromTimeOfDay(
+          alarms[index].time, index < 5 ? timeA : timeB),
+      status: true,
+      init: alarms[index].init,
+      sound: alarms[index].sound,
+      defaultSound: alarms[index].defaultSound));
+}
+
+void enableWhichEanabled() async {
+  if (location) {
+    for (int i = 5; i < 10; i++) {
+      if (alarms[i].status) {
+        NotificationController().cancelNotification(i);
+        enableNotification(i);
+      }
+    }
+  } else {
+    for (int i = 0; i < 5; i++) {
+      if (alarms[i].status) {
+        NotificationController().cancelNotification(i);
+        enableNotification(i);
+      }
+    }
+  }
+}
+
+TimeOfDay addMinutesToTimeOfDay(TimeOfDay time, int minutesToAdd) {
+  final now = DateTime.now();
+  final dt = DateTime(now.year, now.month, now.day, time.hour, time.minute);
+  final newDt = dt.add(Duration(minutes: minutesToAdd));
+  return TimeOfDay(hour: newDt.hour, minute: newDt.minute);
+}
+
+TimeOfDay subtractMinutesFromTimeOfDay(TimeOfDay time, int minutesToSubtract) {
+  final now = DateTime.now();
+  final dt = DateTime(now.year, now.month, now.day, time.hour, time.minute);
+  final newDt = dt.subtract(Duration(minutes: minutesToSubtract));
+  return TimeOfDay(hour: newDt.hour, minute: newDt.minute);
 }

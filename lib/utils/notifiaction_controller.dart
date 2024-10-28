@@ -115,6 +115,45 @@ class NotificationController {
         ));
   }
 
+  void scheduleAlarmOthers(Alarm alarm) async {
+    DateTime now = DateTime.now();
+    DateTime alarmTime = DateTime(
+        now.year, now.month, now.day, alarm.time.hour, alarm.time.minute);
+    String channel4 = "default";
+
+    // If the alarm time has already passed today, set it for tomorrow
+    if (alarmTime.isBefore(now)) {
+      alarmTime = alarmTime.add(const Duration(days: 1));
+    }
+
+    print('Scheduling alarm for: $alarmTime');
+
+    AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: alarm.id,
+          channelKey: channel4,
+          title: alarm.title,
+          body: alarm.body,
+          notificationLayout: NotificationLayout.BigText,
+          wakeUpScreen: true,
+          category: NotificationCategory.Alarm,
+          duration: const Duration(minutes: 1),
+          timeoutAfter: const Duration(minutes: 1),
+
+          //    alarm.id == 0 ? 'resource://raw/assalatu_khairum_minan' : null
+        ),
+        schedule: NotificationCalendar(
+          hour: alarm.time.hour,
+          minute: alarm.time.minute,
+          second: 0,
+          millisecond: 0,
+          repeats: alarm.init,
+          allowWhileIdle: true,
+          preciseAlarm: true,
+        ));
+  }
+  //alarm
+
   void cancelNotification(int id) {
     AwesomeNotifications().cancel(id);
   }

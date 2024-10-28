@@ -78,19 +78,45 @@ class AlarmStorage {
 }
 
 class LocationStorage {
-  static Future<void> saveLocation(String first, String second) async {
+  static Future<void> saveLocation(
+      String first,
+      String second,
+      int firstTime,
+      int secondTime,
+      double flat,
+      double flong,
+      double slat,
+      double slong) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('location_first', first);
     await prefs.setString('location_second', second);
+    await prefs.setInt('timeA', firstTime);
+    await prefs.setInt('timeB', secondTime);
+    await prefs.setDouble('flat', flat);
+    await prefs.setDouble('flong', flong);
+    await prefs.setDouble('slat', slat);
+    await prefs.setDouble('slong', slong);
   }
 
-  static Future<Map<String, String>> loadLocation() async {
+  static Future<Map<String, dynamic>> loadLocation() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? first = prefs.getString('location_first');
     String? second = prefs.getString('location_second');
+    int? timeA = prefs.getInt('timeA');
+    int? timeB = prefs.getInt('timeB');
+    double? flat = prefs.getDouble('flat');
+    double? flong = prefs.getDouble('flong');
+    double? slat = prefs.getDouble('slat');
+    double? slong = prefs.getDouble('slong');
     return {
       'first': first ?? '',
       'second': second ?? '',
+      'timeA': timeA ?? 0,
+      'timeB': timeB ?? 0,
+      'flat': flat ?? 23,
+      'flong': flong ?? 90,
+      'slat': slat ?? 22,
+      'slong': slong ?? 88,
     };
   }
 }

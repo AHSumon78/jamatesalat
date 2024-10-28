@@ -10,7 +10,11 @@
 -keepclassmembers class com.example.screenstate.** { *; }
 -dontwarn com.example.screenstate.**
 
+# NumberPicker
+-keep class com.github.shawnlin.numberpicker.** { *; }
 
+# OpenStreetMapSearchAndPick
+-keep class com.yourpackage.openstreetmapsearchandpick.** { *; }
 
 # Preserve AndroidX lifecycle classes
 -keep class androidx.lifecycle.** { *; }
