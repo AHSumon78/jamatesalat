@@ -112,10 +112,12 @@ class _AlarmPageState extends State<AlarmPage> {
       if (loadedAlarms.isEmpty) {
         _initializeDefaultAlarms();
         location = alarms[0].init;
+        hasPermission = alarms[3].init;
       } else {
         location = alarms[0].init;
         hasPermission = alarms[3].init;
       }
+      _saveAlarms();
     });
   }
 
@@ -332,6 +334,8 @@ class _AlarmPageState extends State<AlarmPage> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => const QiblahScreen()));
+                  } else {
+                    _requestLocationPermission();
                   }
                 },
               ),
