@@ -1,20 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class ContactDeveloper extends StatelessWidget {
   const ContactDeveloper({super.key});
 
   Future<void> _openMailApp() async {
-    final Uri emailUri = Uri(
-      scheme: 'mailto',
-      path: '', // Empty path opens the Mail app
-    );
-
-    if (await canLaunch(emailUri.toString())) {
-      await launch(emailUri.toString());
-    } else {
-      throw 'Could not launch $emailUri';
-    }
+    String mailURL =
+        'https://mail.google.com/mail/u/0/#inbox?compose=jrjtXFBjnwWHSPpptmpSsKpzXlVPwSvZQfXJtlFNWTzZpjHtMGRwjKnTnKZQFzLftsWpQCph';
+    await canLaunchUrlString(mailURL)
+        ? await launchUrlString(mailURL)
+        : throw 'Could not lauch $mailURL';
   }
 
   @override

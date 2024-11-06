@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:jamatesalat/models/Location.dart';
 import 'package:jamatesalat/models/global_function.dart';
-
+import 'package:geolocator/geolocator.dart';
 import 'package:numberpicker/numberpicker.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 // ignore: must_be_immutable
 class Locations extends StatefulWidget {
@@ -22,6 +23,35 @@ class LocationsState extends State<Locations> {
   TextEditingController second = TextEditingController();
   int timeAx = timeA;
   int timeBx = timeB;
+  Future<Position> _getCurrentLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Check if location services are enabled
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    // Check for location permissions
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    // Get the current location
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    return position;
+  }
 
   @override
   void dispose() {
@@ -153,32 +183,42 @@ class LocationsState extends State<Locations> {
                   ),
                 ],
               ),
-              /*  Row(
+              Text(
+                "   latitude    : $flat   Longitude: $flong",
+              ),
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Text("   latitude    : $flat\n   Longitude: $flong"),
                   ElevatedButton(
                       style: const ButtonStyle(
+                          elevation: WidgetStatePropertyAll(10),
                           backgroundColor: WidgetStatePropertyAll(
-                              Color.fromARGB(255, 133, 132, 132))),
+                              Color.fromARGB(255, 142, 207, 234))),
                       onPressed: () async {
-                        PickedData newdata = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => PickLocation(),
-                            ));
+                        Position pos = await _getCurrentLocation();
                         setState(() {
-                          flat = newdata.latLong.latitude;
-                          flong = newdata.latLong.longitude;
-                          first = newdata.addressName;
+                          flat = pos.latitude;
+                          flong = pos.longitude;
                         });
                       },
                       child: Text(
-                        "Pick",
+                        "Get Current Location",
                         style: TextStyle(color: textColor),
-                      ))
+                      )),
+                  ElevatedButton(
+                      style: const ButtonStyle(
+                          elevation: WidgetStatePropertyAll(10),
+                          backgroundColor: WidgetStatePropertyAll(
+                              Color.fromARGB(255, 142, 207, 234))),
+                      onPressed: () async {
+                        _OpenMap(flat, flong);
+                      },
+                      child: Text(
+                        "Open google map",
+                        style: TextStyle(color: textColor),
+                      )),
                 ],
-              ),*/
+              ),
               const Divider(
                 color: Color.fromARGB(255, 42, 42, 42),
                 thickness: 5,
@@ -263,5 +303,13 @@ class LocationsState extends State<Locations> {
         ),
       ),
     );
+  }
+
+  void _OpenMap(double lat, double long) async {
+    String googleURL =
+        'https://www.google.com/maps/search/?api=1&query=$lat,$long';
+    await canLaunchUrlString(googleURL)
+        ? await launchUrlString(googleURL)
+        : throw 'Could not lauch $googleURL';
   }
 }
