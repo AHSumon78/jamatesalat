@@ -5,6 +5,8 @@ import 'package:jamatesalat/utils/notifiaction_controller.dart';
 import '../models/global_function.dart';
 
 class OthersAlarm extends StatefulWidget {
+  const OthersAlarm({super.key});
+
   @override
   _AlarmPageState createState() => _AlarmPageState();
 }
@@ -98,7 +100,7 @@ class _AlarmPageState extends State<OthersAlarm> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: bgColor,
         onPressed: () async {
-          if (alarms.length < 20) {
+          if (alarms.length < 16) {
             await Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -124,7 +126,13 @@ class _AlarmPageState extends State<OthersAlarm> {
         child: Column(
           children: [
             Expanded(
-              child: _location(10),
+              child: alarms.length < 11
+                  ? const Center(
+                      child: Text(
+                      "Add your Alarms",
+                      style: TextStyle(fontSize: 30),
+                    ))
+                  : _location(10),
             ),
             const SizedBox(
               height: 30,

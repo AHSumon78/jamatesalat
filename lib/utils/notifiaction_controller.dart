@@ -44,7 +44,7 @@ class NotificationController {
             channelKey: 'no_sound',
             channelName: 'Vibrate notifications',
             channelDescription: 'Notification channel with vibration',
-            defaultColor: Color(0xFF9D50DD),
+            defaultColor: const Color(0xFF9D50DD),
             ledColor: Colors.white,
             playSound: false,
             enableVibration: true,
@@ -53,7 +53,7 @@ class NotificationController {
             channelKey: 'default',
             channelName: 'Vibrate notifications',
             channelDescription: 'Notification channel with vibration',
-            defaultColor: Color(0xFF9D50DD),
+            defaultColor: const Color(0xFF9D50DD),
             ledColor: Colors.white,
             playSound: true,
             defaultRingtoneType: DefaultRingtoneType.Alarm,
@@ -64,6 +64,27 @@ class NotificationController {
     if (!isPermit) {
       AwesomeNotifications().requestPermissionToSendNotifications();
     }
+  }
+
+  void cancelChannel(String channel) {
+    AwesomeNotifications().removeChannel(channel);
+  }
+
+  void setChannel(String file) {
+    cancelChannel("default");
+    AwesomeNotifications().setChannel(
+      NotificationChannel(
+        channelKey: 'default',
+        channelName: 'Vibrate notifications',
+        channelDescription: 'Notification channel with vibration',
+        defaultColor: const Color(0xFF9D50DD),
+        ledColor: Colors.white,
+        playSound: true,
+        soundSource: 'file://$file',
+        defaultRingtoneType: DefaultRingtoneType.Alarm,
+        enableVibration: true,
+      ),
+    );
   }
 
   void scheduleAlarm(Alarm alarm) async {

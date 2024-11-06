@@ -2,6 +2,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:jamatesalat/models/Location.dart';
 import 'package:jamatesalat/models/alarm.dart';
+import 'package:jamatesalat/screens/app_info.dart';
+import 'package:jamatesalat/screens/calender.dart';
+import 'package:jamatesalat/screens/contact.dart';
+import 'package:jamatesalat/screens/kibla.dart';
 import 'package:jamatesalat/screens/locations.dart';
 import 'package:jamatesalat/screens/others_alarm.dart';
 import 'package:jamatesalat/screens/settings.dart';
@@ -25,18 +29,22 @@ Future<void> requestPreciseAlarmPermission() async {
   }
 }
 
-void _checkPermission() async {
-  var status = await Permission.location.status;
-  if (status.isDenied) {
-    if (await Permission.location.request().isGranted) {
-      // Permission granted
+Future getPermission() async {
+  if (await Permission.location.serviceStatus.isEnabled) {
+    var status = await Permission.location.status;
+    if (status.isGranted) {
+      hasPermission = true;
     } else {
-      // Permission denied
+      Permission.location.request().then((value) {
+        hasPermission = (value == PermissionStatus.granted);
+      });
     }
   }
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -52,18 +60,48 @@ class MyApp extends StatelessWidget {
 }
 
 class AlarmPage extends StatefulWidget {
+  const AlarmPage({super.key});
+
   @override
   _AlarmPageState createState() => _AlarmPageState();
 }
 
 class _AlarmPageState extends State<AlarmPage> {
+  Future<void> _requestLocationPermission() async {
+    final status = await Permission.location.request();
+
+    if (status.isGranted) {
+      // Permission granted, proceed with accessing location
+      print('Location permission granted');
+      hasPermission = true;
+    } else if (status.isDenied) {
+      // Permission denied, show a message to the user
+      print('Location permission denied');
+    } else if (status.isPermanentlyDenied) {
+      // Permission permanently denied, show a dialog with an option to open app settings
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Location Permission'),
+          content: Text('Please enable location permission in settings.'),
+          actions: [
+            TextButton(
+              onPressed: () => openAppSettings(),
+              child: Text('Open Settings'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     _loadAlarms();
     loadLocation();
     requestPreciseAlarmPermission();
-    _checkPermission();
+    _requestLocationPermission();
   }
 
   Future<void> _loadAlarms() async {
@@ -76,6 +114,7 @@ class _AlarmPageState extends State<AlarmPage> {
         location = alarms[0].init;
       } else {
         location = alarms[0].init;
+        hasPermission = alarms[3].init;
       }
     });
   }
@@ -106,6 +145,7 @@ class _AlarmPageState extends State<AlarmPage> {
 
   Future<void> _saveAlarms() async {
     await AlarmStorage.saveAlarms(alarms);
+    alarms[3].init = hasPermission;
   }
 
   void saveLocation() async {
@@ -174,7 +214,7 @@ class _AlarmPageState extends State<AlarmPage> {
         title: Text(
           'NMJammat',
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
             color: textColor,
           ),
@@ -199,11 +239,8 @@ class _AlarmPageState extends State<AlarmPage> {
                 },
               ),
               Text(
-                mosque.isEmpty ? "Mosque" : mosque[location ? 1 : 0],
+                mosque[location ? 1 : 0],
                 style: TextStyle(color: textColor),
-              ),
-              const SizedBox(
-                width: 10,
               ),
               Transform.scale(
                 scale: .7,
@@ -212,15 +249,15 @@ class _AlarmPageState extends State<AlarmPage> {
                   onChanged: (value) {
                     setState(() {
                       location = value;
-                      alarms[0].init = location;
-                      toggle();
+                      saveLoc();
+                      enableWhichEanabled();
                       _saveAlarms();
                     });
                   },
                   activeColor: const Color.fromARGB(255, 227, 227, 231),
                   activeTrackColor: const Color.fromARGB(255, 109, 125, 247),
-                  inactiveThumbColor: const Color.fromARGB(255, 168, 172, 166),
-                  inactiveTrackColor: const Color.fromARGB(255, 216, 211, 211),
+                  inactiveThumbColor: const Color.fromARGB(255, 203, 204, 202),
+                  inactiveTrackColor: const Color.fromARGB(255, 157, 154, 154),
                 ),
               ),
             ],
@@ -273,11 +310,40 @@ class _AlarmPageState extends State<AlarmPage> {
                 },
               ),
               ListTile(
+                leading: Icon(Icons.calendar_month, color: iconColor),
+                title: Text('Hijri',
+                    style: TextStyle(fontSize: 18, color: textColor)),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => Calender()));
+                },
+              ),
+              ListTile(
+                leading: Image.asset(
+                  'assets/images/qibla.png',
+                  width: 25.0,
+                  height: 25.0,
+                ),
+                title: Text('Qibla',
+                    style: TextStyle(fontSize: 18, color: textColor)),
+                onTap: () {
+                  if (hasPermission) {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const QiblahScreen()));
+                  }
+                },
+              ),
+              ListTile(
                 leading: Icon(Icons.info, color: iconColor),
                 title: Text('About',
                     style: TextStyle(fontSize: 18, color: textColor)),
                 onTap: () {
-                  Navigator.pop(context);
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => JamateSalatInfo()));
                 },
               ),
               const Divider(), // Adding a divider for better separation
@@ -287,16 +353,11 @@ class _AlarmPageState extends State<AlarmPage> {
                     style: TextStyle(fontSize: 18, color: textColor)),
                 onTap: () {
                   // Define your navigation logic here
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.help, color: iconColor),
-                title: Text('Help',
-                    style: TextStyle(fontSize: 18, color: textColor)),
-                onTap: () {
-                  // Define your navigation logic here
-                  Navigator.pop(context);
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ContactDeveloper(),
+                      ));
                 },
               ),
             ],
@@ -304,6 +365,16 @@ class _AlarmPageState extends State<AlarmPage> {
           // Adjust the width of the drawer
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+          backgroundColor: bgColor,
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => OthersAlarm(),
+                ));
+          },
+          child: const Icon(Icons.alarm_add_outlined)),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -329,46 +400,23 @@ class _AlarmPageState extends State<AlarmPage> {
                 ),
                 const SizedBox(),
                 Tooltip(
-                  message: "Offset time for\n walking to mosque",
+                  message:
+                      "Offset time for\nwalking to mosque\nalarm will be ring before\n${location ? "$timeB" : "$timeA"}minutes of your set time",
                   enableTapToDismiss: true,
                   preferBelow: false,
-                  child: Text(location ? "$timeB m" : "$timeA m",
-                      style: TextStyle(color: iconColor, fontSize: 28)),
+                  child: GestureDetector(
+                    child: Text(location ? "$timeB m" : "$timeA m",
+                        style: TextStyle(color: iconColor, fontSize: 28)),
+                    onTap: () {
+                      navLocation();
+                    },
+                  ),
                 ),
               ],
             ),
             Expanded(
               child: locationOptions(),
             ),
-            SizedBox(
-              height: 125,
-              child: Text(
-                "Reminder for Jammat\nThat you shall not miss the jammat accidentaly",
-                textAlign: TextAlign.center,
-                style: TextStyle(color: textColor),
-              ),
-            ),
-            ElevatedButton(
-              style: const ButtonStyle(
-                backgroundColor:
-                    WidgetStatePropertyAll(Color.fromARGB(255, 174, 178, 150)),
-                elevation: WidgetStatePropertyAll(20),
-              ),
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => OthersAlarm(),
-                    ));
-              },
-              child: Text(
-                "Others alarm",
-                style: TextStyle(color: textColor),
-              ),
-            ),
-            const SizedBox(
-              height: 30,
-            )
           ],
         ),
       ),

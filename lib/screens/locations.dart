@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:jamatesalat/models/Location.dart';
 import 'package:jamatesalat/models/global_function.dart';
-import 'package:jamatesalat/screens/pick_location.dart';
+
 import 'package:numberpicker/numberpicker.dart';
-import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
 
 // ignore: must_be_immutable
 class Locations extends StatefulWidget {
@@ -37,12 +36,11 @@ class LocationsState extends State<Locations> {
   }
 
   void saveData() {
-    if (first.text.isNotEmpty || second.text.isNotEmpty) {
-      location.first = first.text;
-      location.second = second.text;
-      debugPrint('Saved note with title: ${location.first}');
-      // Optionally, update database here
-    }
+    location.first = first.text;
+    location.second = second.text;
+    debugPrint('Saved note with title: ${location.first}');
+    // Optionally, update database here
+
     location.timeA = timeAx;
     location.timeB = timeBx;
     location.flat = flat;
@@ -98,12 +96,16 @@ class LocationsState extends State<Locations> {
                   ),
                   SizedBox(
                     child: Text(
-                      "set Distances in time",
+                      "Set Distances in time",
                       style: TextStyle(
                           color: textColor, fontWeight: FontWeight.normal),
                     ),
                   )
                 ],
+              ),
+              const Divider(
+                color: Color.fromARGB(255, 64, 63, 63),
+                thickness: 5,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -151,27 +153,35 @@ class LocationsState extends State<Locations> {
                   ),
                 ],
               ),
-              Row(
+              /*  Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Text("   latitude    : $flat\n   Longitude: $flong"),
                   ElevatedButton(
+                      style: const ButtonStyle(
+                          backgroundColor: WidgetStatePropertyAll(
+                              Color.fromARGB(255, 133, 132, 132))),
                       onPressed: () async {
-                        LatLong oldLatLong = LatLong(flat, flong);
-                        LatLong newLatLong = await Navigator.push(
+                        PickedData newdata = await Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => PickLocation(
-                                latLong: oldLatLong,
-                              ),
+                              builder: (context) => PickLocation(),
                             ));
                         setState(() {
-                          slat = newLatLong.latitude;
-                          slong = newLatLong.longitude;
+                          flat = newdata.latLong.latitude;
+                          flong = newdata.latLong.longitude;
+                          first = newdata.addressName;
                         });
                       },
-                      child: const Text("Pick"))
+                      child: Text(
+                        "Pick",
+                        style: TextStyle(color: textColor),
+                      ))
                 ],
+              ),*/
+              const Divider(
+                color: Color.fromARGB(255, 42, 42, 42),
+                thickness: 5,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -219,31 +229,35 @@ class LocationsState extends State<Locations> {
                   ),
                 ],
               ),
-              Row(
+              /*  Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Text("   latitude    : $slat\n   Longitude: $slong"),
                   ElevatedButton(
+                      style: const ButtonStyle(
+                          backgroundColor: WidgetStatePropertyAll(
+                              Color.fromARGB(255, 161, 160, 160))),
                       onPressed: () async {
-                        LatLong oldLatLong = LatLong(slat, slong);
-                        LatLong newLatLong = await Navigator.push(
+                        PickedData newdata = await Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (
                                 context,
                               ) =>
-                                  PickLocation(
-                                latLong: oldLatLong,
-                              ),
+                                  PickLocation(),
                             ));
                         setState(() {
-                          slat = newLatLong.latitude;
-                          slong = newLatLong.longitude;
+                          slat = newdata.latLong.latitude;
+                          slong = newdata.latLong.longitude;
+                          second = newdata.addressName;
                         });
                       },
-                      child: const Text("Pick"))
+                      child: Text(
+                        "Pick",
+                        style: TextStyle(color: textColor),
+                      ))
                 ],
-              ),
+              ),*/
             ],
           ),
         ),

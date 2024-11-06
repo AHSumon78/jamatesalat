@@ -5,6 +5,8 @@ import 'package:jamatesalat/models/alarm.dart';
 import '../models/global_function.dart';
 
 class AddAlarm extends StatefulWidget {
+  const AddAlarm({super.key});
+
   @override
   AddAlarmState createState() => AddAlarmState();
 }
@@ -93,13 +95,13 @@ class AddAlarmState extends State<AddAlarm> {
         child: Column(
           children: [
             const SizedBox(
-              height: 20,
+              height: 30,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SizedBox(
-                  width: 100,
+                  width: 120,
                   child: Text(
                     "Title",
                     style: TextStyle(color: textColor, fontSize: 20),
@@ -107,7 +109,7 @@ class AddAlarmState extends State<AddAlarm> {
                   ),
                 ),
                 SizedBox(
-                  width: 200,
+                  width: 150,
                   height: 50,
                   child: TextField(
                     maxLength: 10,
@@ -136,15 +138,15 @@ class AddAlarmState extends State<AddAlarm> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SizedBox(
-                  width: 100,
+                  width: 120,
                   child: Text(
-                    "Massage",
+                    "Message",
                     style: TextStyle(color: textColor, fontSize: 20),
                     textAlign: TextAlign.start,
                   ),
                 ),
                 SizedBox(
-                  width: 200,
+                  width: 150,
                   height: 50,
                   child: TextField(
                     maxLength: 30,
@@ -156,7 +158,7 @@ class AddAlarmState extends State<AddAlarm> {
                       debugPrint('second: $value');
                     },
                     decoration: const InputDecoration(
-                      hintText: 'massage',
+                      hintText: 'message',
                     ),
                     style: TextStyle(
                       color: textColor, // Set your desired text color here
@@ -173,7 +175,8 @@ class AddAlarmState extends State<AddAlarm> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SizedBox(
-                  width: 100,
+                  width: 120,
+                  height: 50,
                   child: Text(
                     "Time",
                     style: TextStyle(color: textColor, fontSize: 20),
@@ -181,7 +184,7 @@ class AddAlarmState extends State<AddAlarm> {
                   ),
                 ),
                 SizedBox(
-                  width: 200,
+                  width: 150,
                   height: 50,
                   child: GestureDetector(
                     onTap: () {
@@ -196,12 +199,10 @@ class AddAlarmState extends State<AddAlarm> {
               ],
             ),
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(
-                  width: 30,
-                ),
                 SizedBox(
-                  width: 80,
+                  width: 120,
                   child: Text(
                     "Daily",
                     style: TextStyle(color: textColor, fontSize: 20),

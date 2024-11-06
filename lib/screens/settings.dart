@@ -5,6 +5,8 @@ import '../models/alarm.dart';
 
 // ignore: must_be_immutable
 class Settings extends StatefulWidget {
+  const Settings({super.key});
+
   @override
   State<StatefulWidget> createState() {
     // ignore: no_logic_in_create_state
@@ -53,7 +55,7 @@ class settingsState extends State<Settings> {
                 borderRadius: BorderRadius.circular(15.0),
               ),
               elevation: 5,
-              margin: EdgeInsets.all(16.0),
+              margin: const EdgeInsets.all(16.0),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Row(

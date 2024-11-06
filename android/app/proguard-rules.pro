@@ -16,6 +16,13 @@
 # OpenStreetMapSearchAndPick
 -keep class com.yourpackage.openstreetmapsearchandpick.** { *; }
 
+# Islamic Hijri Calendar
+-keep class com.github.islamic_hijri_calendar.** { *; }
+
+# UrlLauncher
+-keep class io.flutter.plugins.urllauncher.** { *; }
+
+
 # Preserve AndroidX lifecycle classes
 -keep class androidx.lifecycle.** { *; }
 

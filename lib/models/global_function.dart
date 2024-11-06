@@ -5,6 +5,7 @@ import 'Details.dart';
 import 'alarm.dart';
 
 bool location = false;
+bool hasPermission = false;
 
 bool isInitialized = false;
 Color iconColor = const Color.fromARGB(255, 15, 16, 10);
@@ -43,7 +44,7 @@ List<Details> details = [
       body: "Go for salah or you will miss jamat",
       time: const TimeOfDay(hour: 20, minute: 00))
 ];
-void toggle() async {
+/*void toggle() async {
   if (location) {
     for (int i = 0; i < 5; i++) {
       if (alarms[i].status) {
@@ -70,7 +71,7 @@ void toggle() async {
     }
   }
 }
-
+*/
 void enableNotification(int index) {
   //  bool screenOn = _screenStateEvent == ScreenStateEvent.SCREEN_ON;
   NotificationController().scheduleAlarm(Alarm(
@@ -115,4 +116,8 @@ TimeOfDay subtractMinutesFromTimeOfDay(TimeOfDay time, int minutesToSubtract) {
   final dt = DateTime(now.year, now.month, now.day, time.hour, time.minute);
   final newDt = dt.subtract(Duration(minutes: minutesToSubtract));
   return TimeOfDay(hour: newDt.hour, minute: newDt.minute);
+}
+
+void saveLoc() {
+  alarms[0].init = location;
 }
